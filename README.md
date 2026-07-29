@@ -1,5 +1,7 @@
 # Obsidian Chord Sheets
 
+This plugin is a fork of [olvidalo/obsidian-chord-sheets](https://github.com/olvidalo/obsidian-chord-sheets), originally created by Marcel Schaeben.
+
 Render and work with chord sheets (**chords over lyrics** or **inline chords** in brackets) in your vault. This plugin brings
 UltimateGuitar-like functionality into Obsidian, featuring **chord diagrams**,
 support for **guitar**, **ukulele** and **mandolin**, **transposition**, and **autoscroll**. Works seamlessly in **edit / live preview**

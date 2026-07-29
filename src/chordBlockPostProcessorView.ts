@@ -7,6 +7,72 @@ import {ChordSheetsSettings} from "./chordSheetsSettings";
 import {ChordToken, isChordToken, isHeaderToken, isMarkerToken, isRhythmToken} from "./sheet-parsing/tokens";
 import {tokenizeLine} from "./sheet-parsing/tokenizeLine";
 
+type FormattingState = {
+	marker: "*" | "**" | "***" | "_" | "__" | "___" | null;
+	container: HTMLElement | null;
+	element: HTMLElement | null;
+};
+
+function getFormattedContainer(container: HTMLElement, state: FormattingState): HTMLElement {
+	if (!state.marker) {
+		return container;
+	}
+
+	if (state.container !== container) {
+		state.container = container;
+		const formattingElement = container.createEl(state.marker.length > 1 ? "strong" : "em");
+		state.element = state.marker.length === 3 ? formattingElement.createEl("em") : formattingElement;
+	}
+
+	return state.element ?? container;
+}
+
+function appendFormattedText(
+	container: HTMLElement,
+	value: string,
+	state: FormattingState,
+	enabledMarkers: ReadonlySet<Exclude<FormattingState["marker"], null>>
+): void {
+	let cursor = 0;
+
+	while (cursor < value.length) {
+		const marker = value.slice(cursor).match(/^(\*\*\*|___|\*\*|__|\*|_)/)?.[1];
+		if (!marker) {
+			const nextMarker = value.slice(cursor).search(/[ *_]/);
+			const end = nextMarker === -1 ? value.length : cursor + nextMarker;
+			const target = getFormattedContainer(container, state);
+			target?.append(value.slice(cursor, end));
+			if (end === cursor) {
+				target?.append(value[cursor] === " " ? "\u00a0" : value[cursor]);
+				cursor++;
+			} else {
+				cursor = end;
+			}
+			continue;
+		}
+		if (!enabledMarkers.has(marker as Exclude<FormattingState["marker"], null>)) {
+			getFormattedContainer(container, state).append(marker);
+			cursor += marker.length;
+			continue;
+		}
+
+		if (state.marker === marker) {
+			state.marker = null;
+			state.container = null;
+			state.element = null;
+		} else if (!state.marker) {
+			state.marker = marker as FormattingState["marker"];
+			state.container = container;
+			const formattingElement = container.createEl(marker.length > 1 ? "strong" : "em");
+			state.element = marker.length === 3 ? formattingElement.createEl("em") : formattingElement;
+		} else {
+			const target = state.container === container ? state.element : container;
+			target?.append(marker);
+		}
+		cursor += marker.length;
+	}
+}
+
 export class ChordBlockPostProcessorView extends MarkdownRenderChild {
 	source: string;
 
@@ -48,6 +114,11 @@ export class ChordBlockPostProcessorView extends MarkdownRenderChild {
 		const codeEl = this.containerEl.createEl("code", {cls: "chord-sheet-chord-block-preview"});
 
 		const chordTokens: ChordToken[] = [];
+		const formattingState: FormattingState = {marker: null, container: null, element: null};
+		const formattingMarkers = ["*", "**", "***", "_", "__", "___"] as const;
+		const enabledMarkers = new Set(
+			formattingMarkers.filter((marker) => this.source.split(marker).length - 1 >= 2)
+		);
 		const lines = this.source.split("\n");
 		let currentIndex = 0;
 		for (const line of lines) {
@@ -72,11 +143,12 @@ export class ChordBlockPostProcessorView extends MarkdownRenderChild {
 						);
 
 
-					const pairSpan = isTokenPair ? lineDiv.createSpan({
+					const chordLineContainer = getFormattedContainer(lineDiv, formattingState);
+					const pairSpan = isTokenPair ? chordLineContainer.createSpan({
 						cls: "chord-sheet-chord-text-pair"
 					}) : null;
 
-					const chordSpan = (pairSpan ?? lineDiv).createSpan({
+					const chordSpan = (pairSpan ?? chordLineContainer).createSpan({
 						cls: "chord-sheet-chord",
 					});
 
@@ -149,10 +221,10 @@ export class ChordBlockPostProcessorView extends MarkdownRenderChild {
 										});
 									}
 								} else {
-									trailingSpan.createSpan({
-										cls: `chord-sheet-${nextToken.type}`,
-										text: nextToken.value
-									});
+										const textSpan = trailingSpan.createSpan({
+											cls: `chord-sheet-${nextToken.type}`
+										});
+										appendFormattedText(textSpan, nextToken.value, formattingState, enabledMarkers);
 								}
 								i++;
 								nextToken = tokenizedLine.tokens[i + 1];
@@ -194,7 +266,7 @@ export class ChordBlockPostProcessorView extends MarkdownRenderChild {
 						text: token.closingBracket.value
 					});
 				} else {
-					lineDiv.append(token.value);
+					appendFormattedText(lineDiv, token.value, formattingState, enabledMarkers);
 				}
 			}
 

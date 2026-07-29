@@ -475,9 +475,9 @@ settings:
 	position: relative;
 	z-index: 100;
 
-	/* increase touch target on mobile */
-	padding: 5px;
-	margin: -5px;
+	/* Keep the whitespace between chord tokens visible in reading mode. */
+	padding: 0;
+	margin: 0;
 }
 
 .chord-sheet-rhythm-marker {
@@ -704,6 +704,7 @@ code.chord-sheet-chord-block-preview > .chord-sheet-section-header,
 
 .chord-sheet-chord-block-preview .chord-sheet-chord-line {
 	min-height: calc(var(--line-height-normal) * 1em);
+	white-space: pre-wrap;
 }
 
 /* Tools */
