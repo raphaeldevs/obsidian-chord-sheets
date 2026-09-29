@@ -473,7 +473,7 @@ settings:
 .chord-sheet-chord-line .chord-sheet-chord-name {
 	cursor: default;
 	position: relative;
-	z-index: 100;
+	z-index: 0;
 
 	/* Keep the whitespace between chord tokens visible in reading mode. */
 	padding: 0;
@@ -914,4 +914,58 @@ svg.enharmonic-toggle {
 
 .markdown-preview-view div.chord-sheet-inline-over-lyrics .chord-sheet-inline-chord-bracket {
 	display: none;
+}
+
+/* Reading-mode sticky positioning follows the pane instead of an overflow-clipped pre. */
+.markdown-preview-view pre.chord-sheet-sticky-block {
+	overflow: visible;
+}
+
+.markdown-preview-view .chord-sheet-sticky-overview {
+	position: sticky;
+	/* Sticky offsets otherwise start below the reading pane’s top padding. */
+	top: calc(-1 * var(--chord-sheet-sticky-inset, 0px));
+	z-index: 20;
+	/* Code backgrounds may be translucent, so the sticky area needs an opaque base. */
+	background: linear-gradient(var(--code-background), var(--code-background)), var(--background-primary);
+}
+
+.markdown-preview-view .chord-sheet-sticky-overview .chord-sheet-chord-overview {
+	flex-wrap: wrap;
+	padding-top: 8px;
+}
+
+/* A separate panel survives editor virtualization. */
+.chord-sheet-pinned-overview {
+	position: fixed;
+	z-index: 20;
+	overflow: visible;
+	background: var(--code-background);
+	border-radius: var(--code-radius);
+	box-shadow: 0 2px 6px var(--background-modifier-box-shadow);
+}
+
+.chord-sheet-pinned-overview[hidden] {
+	display: none;
+}
+
+.chord-sheet-pinned-overview .chord-sheet-chord-overview {
+	flex-wrap: wrap;
+	margin: 0;
+	padding: var(--size-4-2);
+}
+
+.chord-sheet-pinned-overview .chord-sheet-chord-diagram {
+	flex-shrink: 0;
+	margin-bottom: 0;
+}
+
+@media print {
+	.markdown-preview-view .chord-sheet-sticky-overview {
+		position: static;
+	}
+
+	.chord-sheet-pinned-overview {
+		display: none;
+	}
 }

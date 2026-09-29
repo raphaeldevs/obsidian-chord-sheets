@@ -95,7 +95,8 @@ there which brings up the keyboard. Prefer _reading_ mode on mobile.
 
 * Turn chord or section header **highlighting** on or off 
 * Hide certain **UI elements** (instrument and transpose controls, chord diagrams, autoscroll button) for _edit / live preview_ mode, _reading_ mode, or both. 
-* Adjust **chord diagram size** and the **default instrument** 
+* Adjust **chord diagram size** with Small (70 px), Medium (100 px), and Large (130 px) presets or the custom size slider, and choose the **default instrument**
+* Enable **Pin chord overview** to keep the current chord block’s diagrams at the top of its pane while scrolling in reading or edit mode. Diagrams wrap onto multiple rows without internal scrolling in both modes. Reading mode keeps the original overview sticky; edit mode uses a separate pinned overview to support editor virtualization. Pinning follows the existing overview visibility setting.
 * Customize the block **"language" specifier** (e.g., start a chord block with ```` ```tab````  instead of ```` ```chords````) and the **line markers** (e.g. `[c]` instead of `%c`)
 * Integrates with [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) for fine-grained customization of colors and styles
 

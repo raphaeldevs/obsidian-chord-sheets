@@ -2,6 +2,7 @@ import {MarkdownRenderChild} from "obsidian";
 import {Instrument, uniqueChordTokens} from "./chordsUtils";
 import tippy from "tippy.js/headless";
 import {makeChordDiagram, makeChordOverview} from "./chordDiagrams";
+import {attachReadingPinnedOverview} from "./readingPinnedChordOverview";
 import {ChordSheetsSettings} from "./chordSheetsSettings";
 
 import {ChordToken, isChordToken, isHeaderToken, isMarkerToken, isRhythmToken} from "./sheet-parsing/tokens";
@@ -279,6 +280,9 @@ export class ChordBlockPostProcessorView extends MarkdownRenderChild {
 			const overviewEl = overviewContainerEl.createDiv({cls: "chord-sheet-chord-overview"});
 			makeChordOverview(this.instrument, overviewEl, uniqueTokens, diagramWidth);
 			this.containerEl.prepend(overviewContainerEl);
+			if (this.settings.pinChordOverview) {
+				attachReadingPinnedOverview(this, overviewContainerEl);
+			}
 		}
 	}
 

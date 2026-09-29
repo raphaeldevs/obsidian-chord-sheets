@@ -10,6 +10,7 @@ export const DEFAULT_TEXT_LINE_MARKER = "%t";
 
 export interface ChordSheetsSettings {
 	showChordOverview: ShowChordOverviewSetting;
+	pinChordOverview: boolean;
 	showChordDiagramsOnHover: ShowChordDiagramsOnHoverSetting
 	showTransposeControl: boolean;
     showEnharmonicToggleControl: boolean;
@@ -32,6 +33,7 @@ export interface ChordSheetsSettings {
 
 export const DEFAULT_SETTINGS: ChordSheetsSettings = {
 	showChordOverview: "always",
+	pinChordOverview: false,
 	showChordDiagramsOnHover: "always",
 	showTransposeControl: true,
     showEnharmonicToggleControl: false,

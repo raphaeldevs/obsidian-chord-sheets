@@ -43,6 +43,17 @@ export class ChordSheetsSettingTab extends PluginSettingTab {
 					this.plugin.applyNewSettingsToEditors();
 				}));
 
+		new Setting(containerEl)
+			.setName('Pin chord overview')
+			.setDesc('Keep the current chord block’s diagrams at the top of the pane while scrolling, in reading and edit modes.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.pinChordOverview)
+				.onChange(async (value: boolean) => {
+					this.plugin.settings.pinChordOverview = value;
+					await this.plugin.saveSettings();
+					this.plugin.applyNewSettingsToEditors();
+				}));
+
 		const hoverChordDiagramsOptions: Record<ShowChordDiagramsOnHoverSetting, string> = {
 			"never": "Never",
 			"edit": "In edit mode",
@@ -65,9 +76,22 @@ export class ChordSheetsSettingTab extends PluginSettingTab {
 			this.plugin.settings.diagramWidth = value;
 			await this.plugin.saveSettings();
 			this.plugin.applyNewSettingsToEditors();
+			this.display();
 		}, 500);
 		new Setting(containerEl)
 			.setName('Chord diagram size')
+			.setDesc('Choose Small (70 px), Medium (100 px), Large (130 px), or use the slider for a custom size.')
+			.addDropdown(dropdown => dropdown
+				.addOptions({'70': 'Small', '100': 'Medium', '130': 'Large', custom: 'Custom'})
+				.setValue([70, 100, 130].includes(this.plugin.settings.diagramWidth) ? `${this.plugin.settings.diagramWidth}` : 'custom')
+				.onChange(async (value: string) => {
+					if (value === 'custom') return;
+					debouncedChangeDiagramSize.cancel();
+					this.plugin.settings.diagramWidth = Number(value);
+					await this.plugin.saveSettings();
+					this.plugin.applyNewSettingsToEditors();
+					this.display();
+				}))
 			.addSlider(slider => slider
 				.setLimits(50, 150, 1)
 				.setValue(this.plugin.settings.diagramWidth)
